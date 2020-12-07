@@ -19,35 +19,31 @@ class TestSplitNameAndType(TestCase):
 
 
 class TestStartContainer(TestCase):
-    def test_start_python_container(self):
+    def setUp(self):
         root_dir = os.path.dirname(os.path.abspath("README.md"))
-        volume_path = root_dir + "/src/test/test_scripts"
-        c = Container(volume_path)
+        self.volume_path = root_dir + "/src/test/test_scripts"
+
+    def test_start_python_container(self):
+        c = Container(self.volume_path)
         actual = c.container_starter("python", "test.py")
         expected = b'Hello, World!\n'
         self.assertEqual(expected, actual)
 
     def test_start_java_container(self):
-        root_dir = os.path.dirname(os.path.abspath("README.md"))
-        volume_path = root_dir + "/src/test/test_scripts"
-        c = Container(volume_path)
+        c = Container(self.volume_path)
         actual = c.container_starter("java", "test.java")
         expected = b'Hello, World!\n'
         self.assertEqual(expected, actual.output)
 
     def test_start_haskell_container(self):
-        root_dir = os.path.dirname(os.path.abspath("README.md"))
-        volume_path = root_dir + "/src/test/test_scripts"
-        c = Container(volume_path)
+        c = Container(self.volume_path)
         actual = c.container_starter("haskell", "test.hs")
         expected = b'Hello, World!\n'
         self.assertEqual(expected, actual)
 
     def test_start_javascript_container(self):
-        root_dir = os.path.dirname(os.path.abspath("README.md"))
-        volume_path = root_dir + "/src/test/test_scripts"
-        c = Container(volume_path)
-        actual = c.container_starter("javascript", "test.hs")
+        c = Container(self.volume_path)
+        actual = c.container_starter("javascript", "test.js")
         expected = b'Hello, World!\n'
         self.assertEqual(expected, actual)
 
