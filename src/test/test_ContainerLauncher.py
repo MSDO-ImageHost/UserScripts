@@ -33,7 +33,7 @@ class TestStartContainer(TestCase):
         c = Container(self.volume_path)
         actual = c.container_starter("java", "test.java")
         expected = b'Hello, World!\n'
-        self.assertEqual(expected, actual.output)
+        self.assertEqual(expected, actual)
 
     def test_container_starter_haskell(self):
         c = Container(self.volume_path)
@@ -69,7 +69,7 @@ class TestStartContainer(TestCase):
         c = Container(self.volume_path)
         actual = c.java_container("test.java")
         expected = b'Hello, World!\n'
-        self.assertEqual(expected, actual.output)
+        self.assertEqual(expected, actual)
 
     def test_java_container_invalid_file(self):
         c = Container(self.volume_path)
