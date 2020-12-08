@@ -29,7 +29,8 @@ class Container:
         return output
 
     def python_container(self, file):
-        return self.language_container("python", "python mnt/src/" + file)
+        commands = "python mnt/src/" + file
+        return self.language_container("python", commands)
 
     def java_container(self, file):
         name = split_name_and_type(file)
@@ -38,7 +39,9 @@ class Container:
         return self.language_container("openjdk", commands)
 
     def haskell_container(self, file):
-        return self.language_container("haskell", "runhaskell mnt/src/" + file)
+        commands = "runhaskell mnt/src/" + file
+        return self.language_container("haskell", commands)
 
     def javascript_container(self, file):
-        return self.language_container("node", "node mnt/src/" + file)
+        commands = "node mnt/src/" + file
+        return self.language_container("node", commands)
