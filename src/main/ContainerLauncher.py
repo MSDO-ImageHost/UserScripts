@@ -8,7 +8,7 @@ def split_name_and_type(string):
 
 class Container:
     def __init__(self, volume_path):
-        self.volumes = {volume_path: {'bind': '/mnt/src', 'mode': 'rw'}}
+        self.volumes = {volume_path: {'bind': '/mnt/src', 'mode': 'ro'}}
         self.client = docker.from_env()
 
     def container_starter(self, language, file):
@@ -37,8 +37,9 @@ class Container:
 
     def java_container(self, file):
         name = split_name_and_type(file)
-        go_to_folder = "cd mnt && cd src"
-        commands = ["/bin/sh", "-c", go_to_folder + "&& javac " + file + " && java " + name]
+        copy = "cp -ar /mnt/src /mnt/new"
+        go_to_folder = "cd mnt && cd new"
+        commands = ["/bin/sh", "-c", copy + "&&" + go_to_folder + "&& javac " + file + " && java " + name]
         return self.language_container("openjdk", commands)
 
     def haskell_container(self, file):

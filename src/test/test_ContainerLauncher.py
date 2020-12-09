@@ -62,7 +62,7 @@ class TestStartContainer(TestCase):
     def test_python_container_invalid_file(self):
         c = Container(self.volume_path)
         actual = c.python_container("notAfile.notAtype")
-        expected = (b"python: can't open file '//mnt/src/notAfile.notAtype': [Errno 2] No such fil"b'e or directory\n')
+        expected = b"python: can't open file '//mnt/src/notAfile.notAtype': [Errno 2] No such fil"b'e or directory\n'
         self.assertEqual(expected, actual)
 
     def test_java_container(self):
@@ -74,7 +74,7 @@ class TestStartContainer(TestCase):
     def test_java_container_invalid_file(self):
         c = Container(self.volume_path)
         actual = c.java_container("notAfile.notAtype")
-        expected = (b"error: Class names, 'notAfile.notAtype', are only accepted if annotation pro"b'cessing is explicitly requested\n1 error\n')
+        expected = b"error: Class names, 'notAfile.notAtype', are only accepted if annotation pro"b'cessing is explicitly requested\n1 error\n'
         self.assertEqual(expected, actual)
 
     def test_haskell_container(self):
