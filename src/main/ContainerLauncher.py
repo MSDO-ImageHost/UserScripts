@@ -20,12 +20,15 @@ class Container:
         return method(file)
 
     def language_container(self, docker_image: str, commands):
+        container = self.client.containers.run(
+            image=docker_image, command=commands, volumes=self.volumes, detach=True
+        )
         try:
-            output = self.client.containers.run(
-                image=docker_image, command=commands, volumes=self.volumes, remove=True
-            )
-        except docker.errors.ContainerError:
-            output = "File error"
+            container.stop(timeout=120)
+            output = container.logs()
+        except docker.errors.APIError:
+            output = "APIError"
+        container.remove(v=True)
         return output
 
     def python_container(self, file):
@@ -40,7 +43,7 @@ class Container:
 
     def haskell_container(self, file):
         commands = "runhaskell mnt/src/" + file
-        return self.language_container("haskell", commands)
+        return self.language_container("extremedevops/haskell", commands)
 
     def javascript_container(self, file):
         commands = "node mnt/src/" + file
