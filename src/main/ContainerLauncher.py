@@ -1,5 +1,6 @@
 import docker
 import docker.errors
+import docker.types
 
 
 def split_name_and_type(string):
@@ -10,6 +11,9 @@ class Container:
     def __init__(self, volume_path):
         self.volumes = {volume_path: {'bind': '/mnt/src', 'mode': 'ro'}}
         self.client = docker.from_env()
+        ipam_pool = docker.types.IPAMPool(subnet='60.42.0.0/16', iprange='60.42.0.0/8')
+        ipam_config = docker.types.IPAMConfig(pool_configs=[ipam_pool])
+        self.nt = self.client.networks.create("communist_network", ipam=ipam_config)
 
     def container_starter(self, language, file):
         method_name = str(language) + '_container'
@@ -21,7 +25,7 @@ class Container:
 
     def language_container(self, docker_image: str, commands):
         container = self.client.containers.run(
-            image=docker_image, command=commands, volumes=self.volumes, detach=True
+            image=docker_image, command=commands, volumes=self.volumes, detach=True, network="communist_network"
         )
         try:
             container.stop(timeout=120)
@@ -29,10 +33,13 @@ class Container:
         except docker.errors.APIError:
             output = "APIError"
         container.remove(v=True)
+        self.nt.remove()
         return output
 
     def python_container(self, file):
-        commands = "python mnt/src/" + file
+        install = "pip3 install -q -r mnt/src/requirements.txt"
+        run = "python mnt/src/" + file
+        commands = ["/bin/sh", "-c", install + "&&" + run]
         return self.language_container("python", commands)
 
     def java_container(self, file):

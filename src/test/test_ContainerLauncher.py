@@ -65,6 +65,12 @@ class TestStartContainer(TestCase):
         expected = b"python: can't open file '//mnt/src/notAfile.notAtype': [Errno 2] No such fil"b'e or directory\n'
         self.assertEqual(expected, actual)
 
+    def test_python_container_restrict_internet_access(self):
+        c = Container(self.volume_path)
+        actual = c.python_container("webaccess.py")
+        expected = b'Hello, World!\n'
+        self.assertEqual(expected, actual)
+
     def test_java_container(self):
         c = Container(self.volume_path)
         actual = c.java_container("test.java")
