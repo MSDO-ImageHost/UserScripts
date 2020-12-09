@@ -13,7 +13,19 @@ class Container:
         self.client = docker.from_env()
         ipam_pool = docker.types.IPAMPool(subnet='60.42.0.0/16', iprange='60.42.0.0/8')
         ipam_config = docker.types.IPAMConfig(pool_configs=[ipam_pool])
-        self.nt = self.client.networks.create("communist_network", ipam=ipam_config)
+        try:
+            self.nt = self.client.networks.create("communist_network", ipam=ipam_config, check_duplicate=True)
+        except docker.errors.APIError:
+            self.prune_networks("communist_network")
+
+    def prune_networks(self, name):
+        removed_networks = 0
+        network_list = self.client.networks.list()
+        for network in network_list:
+            if network.name == name:
+                network.remove()
+                removed_networks += 1
+        return removed_networks
 
     def container_starter(self, language, file):
         method_name = str(language) + '_container'
@@ -25,7 +37,7 @@ class Container:
 
     def language_container(self, docker_image: str, commands):
         container = self.client.containers.run(
-            image=docker_image, command=commands, volumes=self.volumes, detach=True, network="communist_network"
+            image=docker_image, command=commands, volumes=self.volumes, detach=True
         )
         try:
             container.stop(timeout=120)
@@ -33,7 +45,6 @@ class Container:
         except docker.errors.APIError:
             output = "APIError"
         container.remove(v=True)
-        self.nt.remove()
         return output
 
     def python_container(self, file):

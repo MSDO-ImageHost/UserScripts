@@ -1,5 +1,8 @@
 import os
 from unittest import TestCase
+
+import docker.types
+
 from ..main.ContainerLauncher import split_name_and_type
 from ..main.ContainerLauncher import Container
 
@@ -22,6 +25,16 @@ class TestStartContainer(TestCase):
     def setUp(self):
         root_dir = os.path.dirname(os.path.abspath("README.md"))
         self.volume_path = root_dir + "/src/test/test_scripts"
+
+    def test_prune_networks(self):
+        client = docker.from_env()
+        ipam_pool = docker.types.IPAMPool(subnet='120.42.0.0/16', iprange='120.42.0.0/8')
+        ipam_config = docker.types.IPAMConfig(pool_configs=[ipam_pool])
+        client.networks.create("test_network", ipam=ipam_config)
+        c = Container(self.volume_path)
+        actual = c.prune_networks("test_network")
+        expected = 1
+        self.assertEqual(expected, actual)
 
     def test_container_starter_python(self):
         c = Container(self.volume_path)
