@@ -1,0 +1,39 @@
+version: '3'
+
+
+volumes:
+  rabbitmq_data:
+    driver: local
+
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    volumes:
+      - rabbitmq_data:/bitnami
+    ports:
+      - 15672:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    restart: unless-stopped
+    
+
+  userscripts:
+    build: .
+    container_name: userscripts
+    depends_on:
+      - rabbitmq
+      - docker
+    networks:
+      - public
+      - private
+    ports:
+      - 8080:80
+      - 3000:3000
+    environment:
+      - AMQP_USER=${RABBITMQ_USERNAME}
+      - AMQP_PASS=${RABBITMQ_PASSWORD}
+      - AMQP_URI=amqp://${RABBITMQ_USERNAME}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+    restart: unless-stopped
