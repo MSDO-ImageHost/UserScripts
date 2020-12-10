@@ -1,47 +1,55 @@
-import pymongo
 import datetime
-
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-
-client = MongoClient('localhost', 27017)
-db = client["UserScript"]
-collection = db["user_script"]
+from .jwt import verify
 
 
-script = {
-    "owner": 2,
-    "language": "python3",
-    "program": [{"filename": "test.py", "content": "print(Hello, World!)"}],
-    "created_at": datetime.datetime.now(),
-    "updated_at": datetime.datetime.now()
-}
-
-updated_script = {
-    "$set": {
-        "owner": 2,
-        "language": "python3",
-        "program": [{"filename": "test.py", "content": "print(Hello, World!)"}],
+def create_userscript_database_file(owner, language, files, main_file):
+    script = {
+        "owner": owner,
+        "language": language,
+        "program": files,
+        "main_file": main_file,
         "created_at": datetime.datetime.now(),
         "updated_at": datetime.datetime.now()
     }
-}
-
-#x = collection.insert_one(script)
+    return script
 
 
-def update_userscript(object_id, userscript):
-    return collection.update_one(object_id, userscript)
+class File:
+    def __init__(self, filename, content):
+        self.filename = filename
+        self.content = content
 
 
-def find_userscript(object_id):
-    return collection.find_one({"_id": ObjectId(object_id)})
+class MongoDbActions:
+    def __init__(self, database):
+        client = MongoClient('localhost', 27017)
+        db = client["UserScript"]
+        self.collection = db[database]
 
+    def create_userscript(self, files, main_file, language, jwt):
+        info = verify(jwt)
+        if info is None:
+            return None
+        script = create_userscript_database_file(info["sub"], language, files, main_file)
+        insertion = self.collection.insert_one(script)
+        return insertion.inserted_id
 
-def delete_userscript(object_id):
-    return collection.delete_one({'_id': ObjectId(object_id)})
+    def update_userscript(self, object_id, language=None, files=None, main_file=None):
+        script = {}
+        if language is not None:
+            script["language"] = language
+        if files is not None:
+            script["program"] = files
+        if main_file is not None:
+            script["main_file"] = main_file
+        script["updated_at"] = datetime.datetime.now()
+        update = { "$set": script}
+        return self.collection.update_one({"_id": ObjectId(object_id)}, update)
 
+    def find_userscript(self, object_id):
+        return self.collection.find_one({"_id": ObjectId(object_id)})
 
-#print(find_userscript("5fcecf774ba4c7a206723075"))
-print(update_userscript("5fcecf774ba4c7a206723075", updated_script))
-
+    def delete_userscript(self, object_id):
+        return self.collection.delete_one({'_id': ObjectId(object_id)})
