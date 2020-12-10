@@ -11,7 +11,7 @@ class Container:
     def __init__(self, volume_path):
         self.volumes = {volume_path: {'bind': '/mnt/src', 'mode': 'ro'}}
         self.client = docker.from_env()
-        ipam_pool = docker.types.IPAMPool(subnet='60.42.0.0/16', iprange='60.42.0.0/8')
+        ipam_pool = docker.types.IPAMPool()
         ipam_config = docker.types.IPAMConfig(pool_configs=[ipam_pool])
         try:
             self.nt = self.client.networks.create("communist_network", ipam=ipam_config, check_duplicate=True)
@@ -48,7 +48,7 @@ class Container:
         return output
 
     def python_container(self, file):
-        install = "pip3 install -q -r mnt/src/requirements.txt"
+        install = "if mnt/src/requirements.txt \n then pip3 install -q -r mnt/src/requirements.txt \n fi"
         run = "python mnt/src/" + file
         commands = ["/bin/sh", "-c", install + "&&" + run]
         return self.language_container("python", commands)
