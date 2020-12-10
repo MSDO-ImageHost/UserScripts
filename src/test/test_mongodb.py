@@ -93,3 +93,10 @@ class TestMongoDbActions(TestCase):
         actual = self.mg.update_userscript(jwt_token_updator, userscript_id, "java")
         expected = None
         self.assertEqual(expected, actual)
+
+    def test_update_userscript_non_existing(self):
+        jwt_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1Iiwicm9sZSI6InVzZXIiLCJpc3MiOiJJbWFnZUhvc3Quc2R1LmRrIiwiZXhwIjoxNjM4NTYwNzEzLCJpYXQiOjE2MDcwMjQ3MTN9._AErjVtL5cs72HNi55LMhDi2VLhH-VDKr09_7gBGwDg"
+        id_doesnt_exist = "5fd229c6928aa1351adbd4ee"
+        actual = self.mg.update_userscript(jwt_token, id_doesnt_exist, "java")
+        expected = None
+        self.assertEqual(expected, actual)
