@@ -3,6 +3,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Distribution / packaging
+.idea
+/.idea/
+.idea/workspace.xml
+.idea/misc.xml
+.idea/UserScripts.iml
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
