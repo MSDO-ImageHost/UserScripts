@@ -100,3 +100,46 @@ class TestMongoDbActions(TestCase):
         actual = self.mg.update_userscript(jwt_token, id_doesnt_exist, "java")
         expected = None
         self.assertEqual(expected, actual)
+
+    def test_find_users_userscripts(self):
+        jwt_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1Iiwicm9sZSI6InVzZXIiLCJpc3MiOiJJbWFnZUhvc3Quc2R1LmRrIiwiZXhwIjoxNjM4NTYwNzEzLCJpYXQiOjE2MDcwMjQ3MTN9._AErjVtL5cs72HNi55LMhDi2VLhH-VDKr09_7gBGwDg"
+        user = "5"
+        self.create_userscript_default(jwt_token)
+        self.create_userscript_default(jwt_token)
+        output = self.mg.find_users_userscripts(jwt_token, user)
+        actual = 0
+        for _ in output:
+            actual += 1
+        expected = 2
+        self.assertEqual(expected, actual)
+
+    def test_find_users_userscripts_not_allowed_user(self):
+        jwt_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1Iiwicm9sZSI6InVzZXIiLCJpc3MiOiJJbWFnZUhvc3Quc2R1LmRrIiwiZXhwIjoxNjM4NTYwNzEzLCJpYXQiOjE2MDcwMjQ3MTN9._AErjVtL5cs72HNi55LMhDi2VLhH-VDKr09_7gBGwDg"
+        user = "3"
+        self.create_userscript_default(jwt_token)
+        self.create_userscript_default(jwt_token)
+        actual = self.mg.find_users_userscripts(jwt_token, user)
+        expected = None
+        self.assertEqual(expected, actual)
+
+    def test_run_userscript(self):
+        jwt_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1Iiwicm9sZSI6InVzZXIiLCJpc3MiOiJJbWFnZUhvc3Quc2R1LmRrIiwiZXhwIjoxNjM4NTYwNzEzLCJpYXQiOjE2MDcwMjQ3MTN9._AErjVtL5cs72HNi55LMhDi2VLhH-VDKr09_7gBGwDg"
+        userscript_id = self.create_userscript_default(jwt_token)
+        actual = self.mg.run_userscript(jwt_token, str(userscript_id))
+        expected = b'/bin/sh: 1: mnt/src/requirements.txt: not found\nHello, World!\n'
+        self.assertEqual(expected, actual)
+
+    def test_run_userscript_non_existing(self):
+        jwt_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1Iiwicm9sZSI6InVzZXIiLCJpc3MiOiJJbWFnZUhvc3Quc2R1LmRrIiwiZXhwIjoxNjM4NTYwNzEzLCJpYXQiOjE2MDcwMjQ3MTN9._AErjVtL5cs72HNi55LMhDi2VLhH-VDKr09_7gBGwDg"
+        userscript_id = "5fd229c6928aa1351adbd4ee"
+        actual = self.mg.run_userscript(jwt_token, str(userscript_id))
+        expected = None
+        self.assertEqual(expected, actual)
+
+    def test_run_userscript_not_allowed_user(self):
+        jwt_token_creator = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1Iiwicm9sZSI6InVzZXIiLCJpc3MiOiJJbWFnZUhvc3Quc2R1LmRrIiwiZXhwIjoxNjM4NTYwNzEzLCJpYXQiOjE2MDcwMjQ3MTN9._AErjVtL5cs72HNi55LMhDi2VLhH-VDKr09_7gBGwDg"
+        jwt_token_runner = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjU0MDMyMDAsImlhdCI6MTY2NTQwMzIwMCwiaXNzIjoiSW1hZ2VIb3N0LnNkdS5kayIsInJvbGUiOjAsInN1YiI6IjEyIn0.0KKTtjDmMjQ9uRryM5LGGYK5Ko_sDsuCH_PqSIPrD2I"
+        userscript_id = self.create_userscript_default(jwt_token_creator)
+        actual = self.mg.run_userscript(jwt_token_runner, str(userscript_id))
+        expected = None
+        self.assertEqual(expected, actual)
