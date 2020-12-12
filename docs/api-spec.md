@@ -2,12 +2,12 @@
 
 ## Create User Script
 
-Endpoint: `userscripts/createUserScript`
-
 Request
 ```json
 {
-    "filename": "<file>",
+    "program": "[file]",
+    "main_file": "<filename>",
+    "language": "<code_language>",
     "authentication_token": "<jwt>"
 }
 ```
@@ -17,13 +17,10 @@ Response
 {
     "user_script": "<script id>",
     "http_status": "<integer>",
-    "created_at": "<ISO8601 timestamp>"
 }
 ```
 
 ## Request User Script Status
-
-Endpoint: `userscripts/requestUserScriptStatus`
 
 Request
 ```json
@@ -42,13 +39,13 @@ Response
 
 ## Update User Script
 
-Endpoint: `userscripts/updateUserScript`
-
 Request
 ```json
 {
     "user_script": "<script id>",
-    "filename": "<file>",
+    "updated_files": "[file]",
+    "updated_main_file": "<filename>",
+    "updated_language": "<code_language>",
     "authentication_token": "<jwt>"
 }
 ```
@@ -57,13 +54,28 @@ Response
 ```json
 {
     "http_status": "<integer>",
-    "updated_at": "<ISO8601 timestamp>"
 }
 ```
 
 ## Delete User Script
 
-Endpoint: `userscripts/deleteUserScript`
+Request
+```json
+{
+    "user_script": "<script id>",
+    "authentication_token": "<jwt>"
+}
+```
+
+Response
+```json
+{
+    "http_status": "<integer>"
+}
+```
+
+
+## Run User Script
 
 Request
 ```json
@@ -76,7 +88,6 @@ Request
 Response
 ```json
 {
-    "http_status": "<integer>",
-    "deleted_at": "<ISO8601 timestamp>"
+    "http_status": "<integer>"
 }
 ```

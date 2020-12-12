@@ -43,25 +43,32 @@ class MongoDbActions:
         return self.collection.find_one({"_id": ObjectId(object_id)})
 
     def find_users_userscripts(self, jwt, user):
+        # Authenticate
         info = verify(jwt)
         if info is None:
             return None
         if info["sub"] == user or info["role"] == "admin":
+            # find all user's userscripts
             return self.collection.find({"owner": user})
         return None
 
     def create_userscript(self, jwt, files, main_file, language):
+        # Authenticate
         info = verify(jwt)
         if info is None:
             return None
+        # setup structure of userscript
         script = create_userscript_database_file(info["sub"], language, files, main_file)
+        # create userscript in database
         insertion = self.collection.insert_one(script)
         return insertion.inserted_id
 
     def update_userscript(self, jwt, object_id, updated_language=None, updated_files=None, updated_main_file=None):
+        # Authenticate and read userscript from database
         files = self.__permitted_action(jwt, object_id)
         if files is None:
             return files
+        # setup changes for userscript
         script = {}
         if updated_language is not None:
             script["language"] = updated_language
@@ -71,27 +78,33 @@ class MongoDbActions:
             script["main_file"] = updated_main_file
         script["updated_at"] = datetime.datetime.now()
         update = {"$set": script}
+        # Update userscript
         return self.collection.update_one({"_id": ObjectId(object_id)}, update)
 
     def delete_userscript(self, jwt, object_id):
+        # Authenticate and read userscript from database
         files = self.__permitted_action(jwt, object_id)
         if files is None:
             return files
+        # Delete userscript from database
         return self.collection.delete_one({'_id': ObjectId(object_id)})
 
     def run_userscript(self, jwt, object_id):
+        # Authenticate and read userscript from database
         files = self.__permitted_action(jwt, object_id)
         if files is None:
             return files
+        # create program files
         path = "user_scripts/" + object_id + "/"
         os.mkdir(path)
         for file in files["program"]:
-            f = open(path + file["filename"], "x")
-            f.write(file["content"].decode("utf-8"))
-            f.close()
+            with open(path + file["filename"], "x") as f:
+                f.write(file["content"].decode("utf-8"))
+        # Run userscript
         root_dir = os.path.dirname(os.path.abspath("README.md"))
         volume_path = root_dir + "/user_scripts/" + object_id
         c = Container(volume_path)
         output = c.container_starter(files["language"], files["main_file"])
+        # Delete program files
         shutil.rmtree(volume_path)
         return output
