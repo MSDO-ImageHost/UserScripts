@@ -5,7 +5,7 @@ import shutil
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from .jwt import verify
-from ..main.ContainerLauncher import Container
+from .ContainerLauncher import Container
 
 
 def create_userscript_database_file(owner, language, files, main_file):
@@ -29,7 +29,7 @@ class MongoDbActions:
     def __permitted_action(self, jwt, object_id):
         info = verify(jwt)
         if info is None:
-            return None
+            return "Invalid jwt"
         user = info["sub"]
         role = info["role"]
         files = self.find_userscript(object_id)
@@ -37,7 +37,8 @@ class MongoDbActions:
             owner = files["owner"]
             if owner == user or role == "admin":
                 return files
-        return None
+            return "Permission denied"
+        return "File does not exist"
 
     def find_userscript(self, object_id):
         return self.collection.find_one({"_id": ObjectId(object_id)})
@@ -46,17 +47,17 @@ class MongoDbActions:
         # Authenticate
         info = verify(jwt)
         if info is None:
-            return None
+            return "Invalid jwt"
         if info["sub"] == user or info["role"] == "admin":
             # find all user's userscripts
             return self.collection.find({"owner": user})
-        return None
+        return "Permission denied"
 
     def create_userscript(self, jwt, files, main_file, language):
         # Authenticate
         info = verify(jwt)
         if info is None:
-            return None
+            return "Invalid jwt"
         # setup structure of userscript
         script = create_userscript_database_file(info["sub"], language, files, main_file)
         # create userscript in database
@@ -66,7 +67,7 @@ class MongoDbActions:
     def update_userscript(self, jwt, object_id, updated_language=None, updated_files=None, updated_main_file=None):
         # Authenticate and read userscript from database
         files = self.__permitted_action(jwt, object_id)
-        if files is None:
+        if isinstance(files, str):
             return files
         # setup changes for userscript
         script = {}
@@ -84,7 +85,7 @@ class MongoDbActions:
     def delete_userscript(self, jwt, object_id):
         # Authenticate and read userscript from database
         files = self.__permitted_action(jwt, object_id)
-        if files is None:
+        if isinstance(files, str):
             return files
         # Delete userscript from database
         return self.collection.delete_one({'_id': ObjectId(object_id)})
@@ -92,7 +93,7 @@ class MongoDbActions:
     def run_userscript(self, jwt, object_id):
         # Authenticate and read userscript from database
         files = self.__permitted_action(jwt, object_id)
-        if files is None:
+        if isinstance(files, str):
             return files
         # create program files
         path = "user_scripts/" + object_id + "/"
