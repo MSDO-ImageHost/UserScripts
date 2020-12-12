@@ -1,11 +1,12 @@
+import base64
 import datetime
 import os
 import shutil
 
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from .jwt import verify
-from .ContainerLauncher import Container
+from jwt import verify
+from ContainerLauncher import Container
 
 
 def create_userscript_database_file(owner, language, files, main_file):
@@ -96,16 +97,19 @@ class MongoDbActions:
         if isinstance(files, str):
             return files
         # create program files
-        path = "user_scripts/" + object_id + "/"
+        root_dir = os.path.dirname(os.path.abspath("README.md"))
+        path = root_dir + "/user_scripts/" + object_id + "/"
         os.mkdir(path)
         for file in files["program"]:
             with open(path + file["filename"], "x") as f:
-                f.write(file["content"].decode("utf-8"))
+                content = file["content"]
+                print("Content:", content)
+                f.write(str(base64.b64decode(bytearray(content, encoding="ascii")), "ascii"))
         # Run userscript
-        root_dir = os.path.dirname(os.path.abspath("README.md"))
         volume_path = root_dir + "/user_scripts/" + object_id
         c = Container(volume_path)
         output = c.container_starter(files["language"], files["main_file"])
+        print("output:", output)
         # Delete program files
-        shutil.rmtree(volume_path)
+        #shutil.rmtree(volume_path)
         return output

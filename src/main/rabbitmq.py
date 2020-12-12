@@ -3,7 +3,7 @@ import json
 
 from typing import List, Dict, Tuple
 from pika.spec import BasicProperties
-from .mongodb import MongoDbActions
+from mongodb import MongoDbActions
 
 
 class RabbitMQ:
@@ -14,7 +14,7 @@ class RabbitMQ:
         credentials = pika.PlainCredentials(AMQP_USER, AMQP_PASS)
         print("Establishing connection...")
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(
-            host='rabbitmq',
+            host='localhost',
             port=5672,
             virtual_host='/',
             credentials=credentials))
@@ -40,23 +40,24 @@ class RabbitMQ:
 
 def callback(channel, method, properties, body) -> None:
     event = method.routing_key
-    body = json.loads(body)
+    print(body)
+    body = json.loads(body, )
     body, properties = receive(event, body, properties)
     print(body)
     print(properties.headers)
 
 
-def send(event: str, data: Dict, jwt: str, status_code: int, message: str, correlation_id: str, content_type: str) -> Tuple:
+def send(event: str, data: Dict, status_code: int, message: str, correlation_id: str, content_type: str) -> Tuple:
     rabbitmq = RabbitMQ()
     body = json.dumps(data, indent=4, default=str)
-    headers = {"jwt": jwt, "status_code": status_code, "message": message}
+    headers = {"status_code": status_code, "message": message}
     properties = BasicProperties(content_type=content_type, headers=headers, correlation_id=correlation_id)
     rabbitmq.send(event, body, properties)
     return (body, properties)
 
 
 def handle_event(event: str, body: Dict, properties: BasicProperties) -> Tuple:
-    mongo_actions = MongoDbActions("UserScripts")
+    mongo_actions = MongoDbActions("user_script")
     jwt = properties.headers["jwt"]
 
     if event == "CreateUserScript":
@@ -144,8 +145,13 @@ def receive(event: str, body: Dict, properties: BasicProperties) -> Tuple:
         content_type=content_type
     )
 
-if __name__ == "__main__":
+
+def main():
     events = ["CreateUserScript", "UpdateUserScript", "DeleteUserScript", "RunUserScript", "FindUsersUserScripts"]
     rabbitmq = RabbitMQ()
     rabbitmq.setup(events)
     rabbitmq.receive()
+
+
+if __name__ == "__main__":
+    main()
