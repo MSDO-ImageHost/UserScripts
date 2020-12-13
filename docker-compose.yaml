@@ -1,5 +1,11 @@
 version: '3'
 
+networks:
+  public:
+    driver: bridge
+  private:
+    driver: bridge
+
 
 volumes:
   rabbitmq_data:
@@ -14,18 +20,19 @@ services:
       - rabbitmq_data:/bitnami
     ports:
       - 15672:15672
+    networks:
+      - private
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
     restart: unless-stopped
-    
+
 
   userscripts:
     build: .
     container_name: userscripts
     depends_on:
       - rabbitmq
-      - docker
     networks:
       - public
       - private
