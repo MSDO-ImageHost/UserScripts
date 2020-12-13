@@ -1,4 +1,4 @@
-jwt = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9
+jwt = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1Iiwicm9sZSI6InVzZXIiLCJpc3MiOiJJbWFnZUhvc3Quc2R1LmRrIiwiZXhwIjoxNjM4NTYwNzEzLCJpYXQiOjE2MDcwMjQ3MTN9._AErjVtL5cs72HNi55LMhDi2VLhH-VDKr09_7gBGwDg
 correlation_id = 42
 content_type = application/json
 

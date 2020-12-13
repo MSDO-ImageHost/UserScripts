@@ -1,4 +1,3 @@
-import base64
 import datetime
 import os
 import shutil
@@ -102,14 +101,12 @@ class MongoDbActions:
         os.mkdir(path)
         for file in files["program"]:
             with open(path + file["filename"], "x") as f:
-                content = file["content"]
-                print("Content:", content)
-                f.write(str(base64.b64decode(bytearray(content, encoding="ascii")), "ascii"))
+                f.write(file["content"])
         # Run userscript
         volume_path = root_dir + "/user_scripts/" + object_id
         c = Container(volume_path)
         output = c.container_starter(files["language"], files["main_file"])
         print("output:", output)
         # Delete program files
-        #shutil.rmtree(volume_path)
+        shutil.rmtree(volume_path)
         return output

@@ -1,5 +1,3 @@
-import base64
-import json
 from unittest import TestCase
 from ..main.mongodb import *
 
@@ -10,12 +8,6 @@ class Test(TestCase):
         language = "python"
         with open("src/test/test_scripts/test.py", "rb") as file:
             file_content = file.read()
-        x = base64.b64encode(file_content)
-        print(x)
-        data = json.loads(x)
-        print(data)
-        s = json.dumps(data)
-        print(s)
         file = {"filename": "hello.py", "content": file_content}
         main_file = "hello.py"
         actual = create_userscript_database_file(owner, language, [file], main_file)

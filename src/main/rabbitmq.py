@@ -9,9 +9,9 @@ from mongodb import MongoDbActions
 class RabbitMQ:
     
     def __init__(self) -> None:
-        AMQP_USER = "guest"
-        AMQP_PASS = "guest"
-        credentials = pika.PlainCredentials(AMQP_USER, AMQP_PASS)
+        ampq_user = "guest"
+        ampq_password = "guest"
+        credentials = pika.PlainCredentials(ampq_user, ampq_password)
         print("Establishing connection...")
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(
             host='localhost',
@@ -47,10 +47,10 @@ def callback(channel, method, properties, body) -> None:
     print(properties.headers)
 
 
-def send(event: str, data: Dict, status_code: int, message: str, correlation_id: str, content_type: str) -> Tuple:
+def send(event: str, data: Dict, status_code: int, message: str, correlation_id: str, content_type: str, jwt: str = None) -> Tuple:
     rabbitmq = RabbitMQ()
     body = json.dumps(data, indent=4, default=str)
-    headers = {"status_code": status_code, "message": message}
+    headers = {"status_code": status_code, "message": message, "jwt": jwt}
     properties = BasicProperties(content_type=content_type, headers=headers, correlation_id=correlation_id)
     rabbitmq.send(event, body, properties)
     return (body, properties)
