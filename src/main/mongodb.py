@@ -1,12 +1,19 @@
 import datetime
 import os
-import shutil
-import urllib.parse
-
+import threading
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from jwt import verify
 from ContainerLauncher import Container
+
+try:
+    USERNAME = os.environ["MONGO_INITDB_ROOT_USERNAME"]
+    PASSWORD = os.environ["MONGO_INITDB_ROOT_PASSWORD"]
+    HOST = os.environ["MONGO_HOST"]
+except KeyError:
+    USERNAME = ""
+    PASSWORD = ""
+    HOST = "localhost"
 
 
 def create_userscript_database_file(owner, language, files, main_file):
@@ -23,7 +30,7 @@ def create_userscript_database_file(owner, language, files, main_file):
 
 class MongoDbActions:
     def __init__(self, database):
-        client = MongoClient("mongodb", username="root", password="rootpassword")
+        client = MongoClient(HOST, username=USERNAME, password=PASSWORD)
         db = client["UserScript"]
         self.collection = db[database]
 
@@ -106,8 +113,10 @@ class MongoDbActions:
         # Run userscript
         volume_path = root_dir + "/user_scripts/" + object_id
         c = Container(volume_path)
-        output = c.container_starter(files["language"], files["main_file"])
-        print("output:", output)
-        # Delete program files
-        shutil.rmtree(volume_path)
-        return output
+
+        newThread = threading.Thread(target=c.container_starter, args=(files["language"], files["main_file"]))
+        newThread.start()
+        #output = c.container_starter(files["language"], files["main_file"])
+        #print("output:", output)
+        return None
+

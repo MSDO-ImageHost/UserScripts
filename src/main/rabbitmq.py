@@ -1,3 +1,5 @@
+import os
+
 import pika
 import json
 
@@ -5,20 +7,24 @@ from typing import List, Dict, Tuple
 from pika.spec import BasicProperties
 from mongodb import MongoDbActions
 
+try:
+    AMQP_USER = os.environ["AMQP_USER"]
+    AMQP_PASS = os.environ["AMQP_PASS"]
+    AMQP_HOST = os.environ["AMQP_HOST"]
+except KeyError:
+    AMQP_USER = "guest"
+    AMQP_PASS = "guest"
+    AMQP_HOST = "localhost"
+
 
 class RabbitMQ:
-    
     def __init__(self) -> None:
-        ampq_user = "guest"
-        ampq_password = "guest"
-        credentials = pika.PlainCredentials(ampq_user, ampq_password)
-        print("Establishing connection...")
+        credentials = pika.PlainCredentials(AMQP_USER, AMQP_PASS)
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(
-            host='rabbitmq',
+            host=AMQP_HOST,
             port=5672,
             virtual_host='/',
             credentials=credentials))
-        print("Connection established!")
         self.channel = self.connection.channel()
 
     def setup(self, events: List[str]) -> None:
@@ -99,6 +105,7 @@ def handle_event(event: str, body: Dict, properties: BasicProperties) -> Tuple:
 
     elif event == "RunUserScript":
         output = mongo_actions.run_userscript(jwt, body["user_script"])
+        print("HER", output)
         if isinstance(output, str):
             if output == "Invalid jwt":
                 response_code = 401

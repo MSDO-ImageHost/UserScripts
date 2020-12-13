@@ -41,7 +41,10 @@ services:
     environment:
       - AMQP_USER=${RABBITMQ_USERNAME}
       - AMQP_PASS=${RABBITMQ_PASSWORD}
-      - AMQP_URI=amqp://${RABBITMQ_USERNAME}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+      - AMQP_HOST=${RABBITMQ_HOST}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_HOST=${MONGO_HOST}
     restart: unless-stopped
 
   mongodb:
@@ -52,6 +55,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: rootpassword
+      MONGO_HOST: mongodb
     ports:
       - 27017:27017
     volumes:

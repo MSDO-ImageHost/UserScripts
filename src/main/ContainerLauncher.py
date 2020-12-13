@@ -1,3 +1,5 @@
+import shutil
+
 import docker
 import docker.errors
 import docker.types
@@ -9,6 +11,7 @@ def split_name_and_type(string):
 
 class Container:
     def __init__(self, volume_path):
+        self.volume_path = volume_path
         self.volumes = {volume_path: {'bind': '/mnt/src', 'mode': 'ro'}}
         self.client = docker.from_env()
         ipam_pool = docker.types.IPAMPool()
@@ -36,6 +39,7 @@ class Container:
         return method(file)
 
     def language_container(self, docker_image: str, commands):
+        print("container starting!")
         container = self.client.containers.run(
             image=docker_image, command=commands, volumes=self.volumes, detach=True
         )
@@ -45,6 +49,9 @@ class Container:
         except docker.errors.APIError:
             output = "APIError"
         container.remove(v=True)
+        print("container done!")
+        print(output)
+        shutil.rmtree(self.volume_path)
         return output
 
     def python_container(self, file):
