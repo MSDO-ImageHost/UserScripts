@@ -1,6 +1,7 @@
 import datetime
 import os
 import shutil
+import urllib.parse
 
 from pymongo import MongoClient
 from bson.objectid import ObjectId
@@ -22,7 +23,7 @@ def create_userscript_database_file(owner, language, files, main_file):
 
 class MongoDbActions:
     def __init__(self, database):
-        client = MongoClient('localhost', 27017)
+        client = MongoClient("mongodb", username="root", password="rootpassword")
         db = client["UserScript"]
         self.collection = db[database]
 

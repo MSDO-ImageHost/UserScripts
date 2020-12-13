@@ -1,5 +1,5 @@
 from unittest import TestCase
-from ..main.rabbitmq import *
+from rabbitmq import *
 
 
 class Test(TestCase):

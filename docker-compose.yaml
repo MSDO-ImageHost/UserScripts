@@ -1,15 +1,13 @@
 version: '3'
 
 networks:
-  public:
-    driver: bridge
-  private:
-    driver: bridge
+  rabbit-network:
+  mongo-network:
 
 
 volumes:
   rabbitmq_data:
-    driver: local
+  mongodb_data_container:
 
 
 services:
@@ -21,7 +19,7 @@ services:
     ports:
       - 15672:15672
     networks:
-      - private
+      - rabbit-network
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
@@ -33,9 +31,10 @@ services:
     container_name: userscripts
     depends_on:
       - rabbitmq
+      - mongodb
     networks:
-      - public
-      - private
+      - rabbit-network
+      - mongo-network
     ports:
       - 8080:80
       - 3000:3000
@@ -44,3 +43,16 @@ services:
       - AMQP_PASS=${RABBITMQ_PASSWORD}
       - AMQP_URI=amqp://${RABBITMQ_USERNAME}:${RABBITMQ_PASSWORD}@rabbitmq:5672
     restart: unless-stopped
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    networks:
+      - mongo-network
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_container:/data/db

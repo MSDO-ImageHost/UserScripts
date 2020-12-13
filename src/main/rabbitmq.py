@@ -14,7 +14,7 @@ class RabbitMQ:
         credentials = pika.PlainCredentials(ampq_user, ampq_password)
         print("Establishing connection...")
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(
-            host='localhost',
+            host='rabbitmq',
             port=5672,
             virtual_host='/',
             credentials=credentials))
@@ -41,7 +41,7 @@ class RabbitMQ:
 def callback(channel, method, properties, body) -> None:
     event = method.routing_key
     print(body)
-    body = json.loads(body, )
+    body = json.loads(body)
     body, properties = receive(event, body, properties)
     print(body)
     print(properties.headers)
