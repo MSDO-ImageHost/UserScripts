@@ -15,4 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag userscripts-v1:$(date +%s)
+      run: docker build . --file Dockerfile --tag user-scripts-v1:$(date +%s)
