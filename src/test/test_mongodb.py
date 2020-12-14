@@ -28,8 +28,7 @@ class TestMongoDbActions(TestCase):
         self.mg = MongoDbActions("Testing")
 
     def tearDown(self):
-        # self.mg.collection.drop()
-        pass
+        self.mg.collection.drop()
 
     def create_userscript_default(self, jwt_token):
         with open("src/test/test_scripts/test.py", "rb") as file:
@@ -160,4 +159,3 @@ class TestMongoDbActions(TestCase):
         actual = self.mg.create_log(log, userscript_id)
         expected = 0
         self.assertEqual(expected, actual)
-

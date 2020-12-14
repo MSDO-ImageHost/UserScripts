@@ -1,8 +1,6 @@
 import os
 from unittest import TestCase
-
 import docker.types
-
 from ..main.ContainerLauncher import split_name_and_type
 from ..main.ContainerLauncher import Container
 
