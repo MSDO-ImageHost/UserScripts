@@ -1,8 +1,6 @@
 import os
-
 import pika
 import json
-
 from typing import List, Dict, Tuple
 from pika.spec import BasicProperties
 from mongodb import MongoDbActions
@@ -59,7 +57,7 @@ def send(event: str, data: Dict, status_code: int, message: str, correlation_id:
     headers = {"status_code": status_code, "message": message, "jwt": jwt}
     properties = BasicProperties(content_type=content_type, headers=headers, correlation_id=correlation_id)
     rabbitmq.send(event, body, properties)
-    return (body, properties)
+    return body, properties
 
 
 def handle_event(event: str, body: Dict, properties: BasicProperties) -> Tuple:

@@ -4,18 +4,6 @@ content_type = application/json
 
 CreateUserScript
 {
-    "program": [{"filename": "hello.py", "content": \x70\x72\x69\x6e\x74\x28\x22\x48\x65\x6c\x6c\x6f\x2c\x20\x57\x6f\x72\x6c\x64\x21\x22\x29\x0a}],
-    "main_file": "hello.py",
-    "language": "python"
-}
-
-{
-    "program": [{"filename": "hello.py", "content": "b'cHJpbnQoIkhlbGxvLCBXb3JsZCEiKQo='"}],
-    "main_file": "hello.py",
-    "language": "python"
-}
-
-{
     "program": [{"filename": "hello.py", "content": "b'print(\"Hello, World!\")\\n'"}],
     "main_file": "hello.py",
     "language": "python"

@@ -22,6 +22,7 @@ def create_userscript_database_file(owner, language, files, main_file):
         "language": language,
         "program": files,
         "main_file": main_file,
+        "logs": [],
         "created_at": datetime.datetime.now(),
         "updated_at": datetime.datetime.now()
     }
@@ -29,10 +30,10 @@ def create_userscript_database_file(owner, language, files, main_file):
 
 
 class MongoDbActions:
-    def __init__(self, database):
+    def __init__(self, collection_userscripts):
         client = MongoClient(HOST, username=USERNAME, password=PASSWORD)
         db = client["UserScript"]
-        self.collection = db[database]
+        self.collection = db[collection_userscripts]
 
     def __permitted_action(self, jwt, object_id):
         info = verify(jwt)
@@ -105,18 +106,27 @@ class MongoDbActions:
             return files
         # create program files
         root_dir = os.path.dirname(os.path.abspath("README.md"))
-        path = root_dir + "/user_scripts/" + object_id + "/"
-        os.mkdir(path)
+        program_path = root_dir + "/user_scripts/" + object_id + "/"
+        os.mkdir(program_path)
         for file in files["program"]:
-            with open(path + file["filename"], "x") as f:
-                f.write(file["content"])
+            print(file["content"])
+            with open(program_path + file["filename"], "x") as f:
+                f.write(str(file["content"]))
         # Run userscript
         volume_path = root_dir + "/user_scripts/" + object_id
-        c = Container(volume_path)
+        c = Container(volume_path, object_id)
 
-        newThread = threading.Thread(target=c.container_starter, args=(files["language"], files["main_file"]))
-        newThread.start()
-        #output = c.container_starter(files["language"], files["main_file"])
-        #print("output:", output)
-        return None
+        new_thread = threading.Thread(target=c.container_starter, args=(files["language"], files["main_file"]))
+        new_thread.start()
+
+    def create_log(self, log, program_id):
+        log_object = {
+            "log": log,
+            "created_at": datetime.datetime.now()
+        }
+        return self.collection.update({'_id': program_id}, {'$push': {'logs': log_object}})["nModified"]
+
+
+
+
 

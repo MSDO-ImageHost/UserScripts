@@ -16,6 +16,7 @@ class Test(TestCase):
             "language": "python",
             "program": [{"filename": "hello.py", "content": file_content}],
             "main_file": "hello.py",
+            'logs': [],
             "created_at": datetime.datetime.now(),
             "updated_at": datetime.datetime.now()
         }
@@ -27,7 +28,8 @@ class TestMongoDbActions(TestCase):
         self.mg = MongoDbActions("Testing")
 
     def tearDown(self):
-        self.mg.collection.drop()
+        # self.mg.collection.drop()
+        pass
 
     def create_userscript_default(self, jwt_token):
         with open("src/test/test_scripts/test.py", "rb") as file:
@@ -126,7 +128,7 @@ class TestMongoDbActions(TestCase):
         jwt_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1Iiwicm9sZSI6InVzZXIiLCJpc3MiOiJJbWFnZUhvc3Quc2R1LmRrIiwiZXhwIjoxNjM4NTYwNzEzLCJpYXQiOjE2MDcwMjQ3MTN9._AErjVtL5cs72HNi55LMhDi2VLhH-VDKr09_7gBGwDg"
         userscript_id = self.create_userscript_default(jwt_token)
         actual = self.mg.run_userscript(jwt_token, str(userscript_id))
-        expected = b'/bin/sh: 1: mnt/src/requirements.txt: not found\nHello, World!\n'
+        expected = None
         self.assertEqual(expected, actual)
 
     def test_run_userscript_non_existing(self):
@@ -143,3 +145,19 @@ class TestMongoDbActions(TestCase):
         actual = self.mg.run_userscript(jwt_token_runner, str(userscript_id))
         expected = "Permission denied"
         self.assertEqual(expected, actual)
+
+    def test_create_log(self):
+        jwt_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1Iiwicm9sZSI6InVzZXIiLCJpc3MiOiJJbWFnZUhvc3Quc2R1LmRrIiwiZXhwIjoxNjM4NTYwNzEzLCJpYXQiOjE2MDcwMjQ3MTN9._AErjVtL5cs72HNi55LMhDi2VLhH-VDKr09_7gBGwDg"
+        userscript_id = self.create_userscript_default(jwt_token)
+        log = "hi there!\n this works right?"
+        actual = self.mg.create_log(log, userscript_id)
+        expected = 1
+        self.assertEqual(expected, actual)
+
+    def test_create_log_fail(self):
+        userscript_id = "5cd604ce45c4812e05c24f2c"
+        log = "hi there!\n this works right?"
+        actual = self.mg.create_log(log, userscript_id)
+        expected = 0
+        self.assertEqual(expected, actual)
+

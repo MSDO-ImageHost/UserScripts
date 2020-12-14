@@ -1,5 +1,4 @@
 import shutil
-
 import docker
 import docker.errors
 import docker.types
@@ -10,7 +9,8 @@ def split_name_and_type(string):
 
 
 class Container:
-    def __init__(self, volume_path):
+    def __init__(self, volume_path, program_id=None):
+        self.program_id = program_id
         self.volume_path = volume_path
         self.volumes = {volume_path: {'bind': '/mnt/src', 'mode': 'ro'}}
         self.client = docker.from_env()
@@ -39,20 +39,21 @@ class Container:
         return method(file)
 
     def language_container(self, docker_image: str, commands):
-        print("container starting!")
         container = self.client.containers.run(
             image=docker_image, command=commands, volumes=self.volumes, detach=True
         )
         try:
             container.stop(timeout=120)
-            output = container.logs()
+            log = container.logs()
         except docker.errors.APIError:
-            output = "APIError"
+            log = "APIError"
         container.remove(v=True)
-        print("container done!")
-        print(output)
-        shutil.rmtree(self.volume_path)
-        return output
+        if self.program_id is not None:
+            shutil.rmtree(self.volume_path)
+            from mongodb import MongoDbActions
+            mg = MongoDbActions("user_script")
+            mg.create_log(log.decode("utf-8"), self.program_id)
+        return log
 
     def python_container(self, file):
         install = "if mnt/src/requirements.txt \n then pip3 install -q -r mnt/src/requirements.txt \n fi"

@@ -25,7 +25,7 @@ class Test(TestCase):
     def test_send_RunUserScript(self):
         event = "RunUserScript"
         data = {
-            "user_script": "5fd60d376a4d9affdb1ed8c3"
+            "user_script": "5fd75fcd58dab27421bcdabc"
         }
         status_code = 200
         message = "Hi"
