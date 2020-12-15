@@ -44,7 +44,7 @@ class MongoDbActions:
         files = self.find_userscript(object_id)
         if files is not None:
             owner = files["owner"]
-            if owner == user or role == "admin":
+            if owner == user or role > 9:
                 return files
             return "Permission denied"
         return "File does not exist"
@@ -57,7 +57,7 @@ class MongoDbActions:
         info = verify(jwt)
         if info is None:
             return "Invalid jwt"
-        if info["sub"] == user or info["role"] == "admin":
+        if info["sub"] == user or info["role"] > 9:
             # find all user's userscripts
             return self.collection.find({"owner": user})
         return "Permission denied"

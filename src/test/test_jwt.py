@@ -4,9 +4,9 @@ from ..main.jwt import verify
 
 class Test(TestCase):
     def test_verify_working_token(self):
-        token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1Iiwicm9sZSI6InVzZXIiLCJpc3MiOiJJbWFnZUhvc3Quc2R1LmRrIiwiZXhwIjoxNjM4NTYwNzEzLCJpYXQiOjE2MDcwMjQ3MTN9._AErjVtL5cs72HNi55LMhDi2VLhH-VDKr09_7gBGwDg"
+        token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZSI6MSwiaXNzIjoiSW1hZ2VIb3N0LnNkdS5kayIsImV4cCI6MTYwODUyMDMyOSwiaWF0IjoxNjA3MjA2MzI5fQ.EFv8rHJYAp0DE8h2GFzZzceCiOZS4ZfCh6aBkIHNsEs"
         actual = verify(token)
-        expected = {'sub': '5', 'role': 'user', 'iss': 'ImageHost.sdu.dk', 'exp': 1638560713, 'iat': 1607024713}
+        expected = {'exp': 1608520329, 'iat': 1607206329, 'iss': 'ImageHost.sdu.dk', 'role': 1, 'sub': '1'}
         self.assertEqual(expected, actual)
 
     def test_verify_expired_token(self):
