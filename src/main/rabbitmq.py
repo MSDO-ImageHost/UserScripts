@@ -6,9 +6,9 @@ from pika.spec import BasicProperties
 from mongodb import MongoDbActions
 
 try:
-    AMQP_USER = os.environ["AMQP_USER"]
-    AMQP_PASS = os.environ["AMQP_PASS"]
-    AMQP_HOST = os.environ["AMQP_HOST"]
+    AMQP_USER = os.environ["RABBITMQ_USERNAME"]
+    AMQP_PASS = os.environ["RABBITMQ_PASSWORD"]
+    AMQP_HOST = os.environ["RABBITMQ_HOST"]
 except KeyError:
     AMQP_USER = "guest"
     AMQP_PASS = "guest"

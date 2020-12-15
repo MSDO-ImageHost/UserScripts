@@ -7,8 +7,8 @@ from jwt import verify
 from ContainerLauncher import Container
 
 try:
-    USERNAME = os.environ["MONGO_INITDB_ROOT_USERNAME"]
-    PASSWORD = os.environ["MONGO_INITDB_ROOT_PASSWORD"]
+    USERNAME = os.environ["MONGO_USERNAME"]
+    PASSWORD = os.environ["MONGO_PASSWORD"]
     HOST = os.environ["MONGO_HOST"]
 except KeyError:
     USERNAME = ""
