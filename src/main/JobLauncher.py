@@ -61,7 +61,12 @@ def main():
     # Configs can be set in Configuration class directly or using helper
     # utility. If no argument provided, the config will be loaded from
     # default location.
-    config.load_kube_config()
+
+    try:
+        config.load_incluster_config()
+    except:
+        config.load_kube_config()
+
     batch_v1 = client.BatchV1Api()
     # Create a job object with client-python API. The job we
     # created is same as the `pi-job.yaml` in the /examples folder.
