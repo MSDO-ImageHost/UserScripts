@@ -4,7 +4,7 @@ import threading
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from jwt import verify
-from ContainerLauncher import Container
+from JobLauncher import Job
 
 try:
     USERNAME = os.environ["MONGO_USERNAME"]
@@ -114,9 +114,9 @@ class MongoDbActions:
                 f.write(str(file["content"]))
         # Run userscript
         volume_path = root_dir + "/user_scripts/" + object_id
-        c = Container(volume_path, object_id)
+        job = Job(volume_path, object_id)
 
-        new_thread = threading.Thread(target=c.container_starter, args=(files["language"], files["main_file"]))
+        new_thread = threading.Thread(target=job.job_starter, args=(files["language"], files["main_file"]))
         new_thread.start()
 
     def create_log(self, log, program_id):
