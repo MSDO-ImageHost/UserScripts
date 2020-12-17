@@ -5,4 +5,4 @@ COPY src/main .
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
-CMD [ "python", "-u", "JobLauncher.py" ]
+CMD [ "python", "-u", "main.py" ]

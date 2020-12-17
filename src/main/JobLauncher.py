@@ -71,7 +71,7 @@ class Job:
     def python_job(self, file):
         install = "if mnt/src/requirements.txt \n then pip3 install -q -r mnt/src/requirements.txt \n fi"
         run = "python mnt/src/" + file
-        commands = ["/bin/sh", "-c", "ls -la"]
+        commands = ["/bin/sh", "-c", install + "&&" + run]
         return self.create_job("python", commands)
 
     def java_container(self, file):
