@@ -59,7 +59,7 @@ class MongoDbActions:
             return "Invalid jwt"
         if info["sub"] == user or info["role"] > 9:
             # find all user's userscripts
-            return self.collection.find({"owner": user})
+            return [userscript for userscript in self.collection.find({"owner": user})]
         return "Permission denied"
 
     def create_userscript(self, jwt, files, main_file, language):
