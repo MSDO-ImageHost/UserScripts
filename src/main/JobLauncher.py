@@ -54,10 +54,10 @@ class Job:
         return job
 
     def create_job(self, docker_image, commands):
+        print("Creating job.")
         try:
             config.load_incluster_config()
-        except Exception as e:
-            print(e)
+        except:
             config.load_kube_config()
 
         batch_v1 = client.BatchV1Api()
@@ -67,13 +67,8 @@ class Job:
             namespace="default"
         )
 
-        print("Now sleeping...")
-        time.sleep(60)
-        print("Fetching output...")
         output = self.get_output(batch_v1)
-        print("Done fetching output. Logging to database now...")
         self.log_output(output)
-        print("Deleting job...")
         self.delete_job(batch_v1)
 
     def get_output(self, api_instance):
@@ -89,11 +84,16 @@ class Job:
             timeout_seconds=10
         )
         pod_name = pods_list.items[0].metadata.name
-        try:
-            pod_log_response = core_v1.read_namespaced_pod_log(name=pod_name, namespace='default')
-            return pod_log_response
-        except client.rest.ApiException as e:
-            print("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)
+
+        time_waited = 0
+        while time_waited < 600:
+            try:
+                pod_log_response = core_v1.read_namespaced_pod_log(name=pod_name, namespace='default')
+                return pod_log_response
+            except client.rest.ApiException:
+                time.sleep(5)
+                time_waited += 5
+        return "Job was running for more than 10 minutes."
 
     def log_output(self, output):
         from mongodb import MongoDbActions
@@ -129,10 +129,10 @@ class Job:
         return self.create_job("node", commands)
 
     def delete_job(self, api_instance):
-        api_response = api_instance.delete_namespaced_job(
+        api_instance.delete_namespaced_job(
             name=self.program_id,
             namespace="default",
             body=client.V1DeleteOptions(propagation_policy='Foreground'),
             grace_period_seconds=0
         )
-        print("Job deleted. status='%s'" % str(api_response.status))
+        print("Job deleted.")

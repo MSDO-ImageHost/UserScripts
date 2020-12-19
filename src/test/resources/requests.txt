@@ -2,11 +2,19 @@ jwt = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1Iiwicm9sZSI6InVzZXIiLCJpc
 correlation_id = 42
 content_type = application/json
 
+
 CreateUserScript
 {
-    "program": [{"filename": "hello.py", "content": "b'print(\"Hello, World!\")\\n'"}, {"filename": "requirements.txt", "content": ""}],
+    "program": [{"filename": "hello.py", "content": "print(\"Hello, World!\")\n"}, {"filename": "requirements.txt", "content": ""}],
     "main_file": "hello.py",
     "language": "python"
+}
+
+{
+    "program": [{"filename": "test.py", "content": "print(\"Hello, World!\")\n"}, {"filename": "requirements.txt", "content": "requests===2.25.0"}],
+    "main_file": "test.py",
+    "language": "python",
+    "logs": []
 }
 
 
