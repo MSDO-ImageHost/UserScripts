@@ -1,55 +1,55 @@
-import shutil
-from os import path
+import time
 from kubernetes import client, config
 
 
-class Job:
-    def __init__(self, volume_path, program_id):
-        self.program_id = program_id
-        self.volume_path = volume_path
+def create_files_command(files):
+    command = ""
+    for file in files:
+        filename = file["filename"]
+        content = file["content"]
+        command += f"cat << EOF > {filename}\n{content}\nEOF\n"
+    return command
 
-    def job_starter(self, language, file):
+
+class Job:
+    def __init__(self, program_id):
+        self.program_id = program_id
+
+    def job_starter(self, language, files, mainfile):
         method_name = str(language) + '_job'
         invalid_method_name = 'Invalid Language'
         method = getattr(self, method_name, invalid_method_name)
         if method == invalid_method_name:
             return invalid_method_name
-        return method(file)
+        return method(files, mainfile)
 
     def create_job_object(self, docker_image, commands):
         # Configureate Pod template container
-        volume_name = "default"
-        volume_mount = client.V1VolumeMount(
-            name=volume_name,
-            mount_path='/mnt/src',
-            read_only=True
-        )
         container = client.V1Container(
             name=self.program_id,
             image=docker_image,
             command=commands,
-            volume_mounts=[volume_mount]
+            # volume_mounts=[volume_mount]
         )
 
-        host_path = client.V1HostPathVolumeSource(self.volume_path, "Directory")
-        volume = client.V1Volume(
-            name=volume_name,
-            host_path=host_path,
-        )
         # Create and configurate a spec section
         template = client.V1PodTemplateSpec(
-            spec=client.V1PodSpec(restart_policy="Never", containers=[container], volumes=[volume])
+            spec=client.V1PodSpec(restart_policy="Never", containers=[container])
         )
+
         # Create the specification of deployment
         spec = client.V1JobSpec(
             template=template,
-            backoff_limit=4)
+            backoff_limit=4,
+        )
+
         # Instantiate the job object
         job = client.V1Job(
             api_version="batch/v1",
             kind="Job",
             metadata=client.V1ObjectMeta(name=self.program_id),
-            spec=spec)
+            spec=spec
+        )
 
         return job
 
@@ -59,50 +59,76 @@ class Job:
         except Exception as e:
             print(e)
             config.load_kube_config()
+
         batch_v1 = client.BatchV1Api()
-
         job = self.create_job_object(docker_image, commands)
-        api_response = batch_v1.create_namespaced_job(
+        batch_v1.create_namespaced_job(
             body=job,
-            namespace="default")
-        print("Job created. status='%s'" % str(api_response.status))
-        shutil.rmtree(self.volume_path)
+            namespace="default"
+        )
 
-    def python_job(self, file):
-        install = "if mnt/src/requirements.txt \n then pip3 install -q -r mnt/src/requirements.txt \n fi"
-        run = "python mnt/src/" + file
-        commands = ["/bin/sh", "-c", install + "&&" + run]
+        time.sleep(60)
+        output = self.get_output(batch_v1)
+        self.log_output(output)
+        self.delete_job(batch_v1)
+
+    def get_output(self, api_instance):
+        job_def = api_instance.read_namespaced_job(name=self.program_id, namespace='default')
+        controllerUid = job_def.metadata.labels["controller-uid"]
+
+        core_v1 = client.CoreV1Api()
+
+        pod_label_selector = "controller-uid=" + controllerUid
+        pods_list = core_v1.list_namespaced_pod(
+            namespace='default',
+            label_selector=pod_label_selector,
+            timeout_seconds=10
+        )
+        pod_name = pods_list.items[0].metadata.name
+        try:
+            pod_log_response = core_v1.read_namespaced_pod_log(name=pod_name, namespace='default')
+            return pod_log_response
+        except client.rest.ApiException as e:
+            print("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)
+
+    def log_output(self, output):
+        from mongodb import MongoDbActions
+        mg = MongoDbActions("user_script")
+        mg.create_log(output, self.program_id)
+
+    def python_job(self, files, mainfile):
+        install = "pip3 install -q -r requirements.txt"
+        command = create_files_command(files)
+        command += install + " && "
+        command += "python " + mainfile
+        commands = ["/bin/sh", "-c", command]
         return self.create_job("python", commands)
 
-    def java_container(self, file):
-        name = file.rsplit('.', 1)[0]
-        copy = "cp -ar /mnt/src /mnt/new"
-        go_to_folder = "cd mnt && cd new"
-        commands = ["/bin/sh", "-c", copy + "&&" + go_to_folder + "&& javac " + file + " && java " + name]
+    def java_job(self, files, mainfile):
+        name = mainfile.rsplit('.', 1)[0]
+        command = create_files_command(files)
+        command += "javac " + mainfile + " && "
+        command += "java " + name
+        commands = ["/bin/sh", "-c", command]
         return self.create_job("openjdk", commands)
 
-    def haskell_container(self, file):
-        commands = "runhaskell mnt/src/" + file
+    def haskell_job(self, files, mainfile):
+        command = create_files_command(files)
+        command += "runhaskell " + mainfile
+        commands = ["/bin/sh", "-c", command]
         return self.create_job("extremedevops/haskell", commands)
 
-    def javascript_container(self, file):
-        commands = "node mnt/src/" + file
+    def javascript_job(self, files, mainfile):
+        command = create_files_command(files)
+        command += "node " + mainfile
+        commands = ["/bin/sh", "-c", command]
         return self.create_job("node", commands)
 
     def delete_job(self, api_instance):
         api_response = api_instance.delete_namespaced_job(
             name=self.program_id,
             namespace="default",
-            body=client.V1DeleteOptions(
-                propagation_policy='Foreground',
-                grace_period_seconds=5))
+            body=client.V1DeleteOptions(propagation_policy='Foreground'),
+            grace_period_seconds=0
+        )
         print("Job deleted. status='%s'" % str(api_response.status))
-
-
-def main():
-    job = Job("/mnt", "test-program")
-    job.python_job("test.py")
-
-
-if __name__ == '__main__':
-    main()

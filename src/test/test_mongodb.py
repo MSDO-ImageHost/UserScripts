@@ -115,7 +115,7 @@ class TestMongoDbActions(TestCase):
         self.assertEqual(expected, actual)
 
     def test_find_users_userscripts_not_allowed_user(self):
-        jwt_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1Iiwicm9sZSI6InVzZXIiLCJpc3MiOiJJbWFnZUhvc3Quc2R1LmRrIiwiZXhwIjoxNjM4NTYwNzEzLCJpYXQiOjE2MDcwMjQ3MTN9._AErjVtL5cs72HNi55LMhDi2VLhH-VDKr09_7gBGwDg"
+        jwt_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1Iiwicm9sZSI6MCwiaXNzIjoiSW1hZ2VIb3N0LnNkdS5kayIsImV4cCI6MTYzODU2MDcxMywiaWF0IjoxNjA3MDI0NzEzfQ.BEd5MV1_8Vukwk-zX3cNKrXKF_ZseIBmahYt7-PopB8"
         user = "3"
         self.create_userscript_default(jwt_token)
         self.create_userscript_default(jwt_token)
@@ -124,7 +124,7 @@ class TestMongoDbActions(TestCase):
         self.assertEqual(expected, actual)
 
     def test_run_userscript(self):
-        jwt_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1Iiwicm9sZSI6InVzZXIiLCJpc3MiOiJJbWFnZUhvc3Quc2R1LmRrIiwiZXhwIjoxNjM4NTYwNzEzLCJpYXQiOjE2MDcwMjQ3MTN9._AErjVtL5cs72HNi55LMhDi2VLhH-VDKr09_7gBGwDg"
+        jwt_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1Iiwicm9sZSI6MCwiaXNzIjoiSW1hZ2VIb3N0LnNkdS5kayIsImV4cCI6MTYzODU2MDcxMywiaWF0IjoxNjA3MDI0NzEzfQ.BEd5MV1_8Vukwk-zX3cNKrXKF_ZseIBmahYt7-PopB8"
         userscript_id = self.create_userscript_default(jwt_token)
         actual = self.mg.run_userscript(jwt_token, str(userscript_id))
         expected = None

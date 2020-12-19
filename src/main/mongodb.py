@@ -104,19 +104,11 @@ class MongoDbActions:
         files = self.__permitted_action(jwt, object_id)
         if isinstance(files, str):
             return files
-        # create program files
-        root_dir = os.path.dirname(os.path.abspath("README.md"))
-        program_path = root_dir + "/user_scripts/" + object_id + "/"
-        os.mkdir(program_path)
-        for file in files["program"]:
-            print(file["content"])
-            with open(program_path + file["filename"], "x") as f:
-                f.write(str(file["content"]))
-        # Run userscript
-        volume_path = root_dir + "/user_scripts/" + object_id
-        job = Job(volume_path, object_id)
 
-        new_thread = threading.Thread(target=job.job_starter, args=(files["language"], files["main_file"]))
+        # Run userscript
+        job = Job(object_id)
+
+        new_thread = threading.Thread(target=job.job_starter, args=(files["language"], files["program"], files["main_file"]))
         new_thread.start()
 
     def create_log(self, log, program_id):
@@ -124,9 +116,5 @@ class MongoDbActions:
             "log": log,
             "created_at": datetime.datetime.now()
         }
-        return self.collection.update({'_id': program_id}, {'$push': {'logs': log_object}})["nModified"]
-
-
-
-
+        return self.collection.update({'_id': ObjectId(program_id)}, {'$push': {'logs': log_object}})["nModified"]
 

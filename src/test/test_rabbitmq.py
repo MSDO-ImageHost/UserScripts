@@ -5,14 +5,15 @@ from ..main.rabbitmq import *
 class Test(TestCase):
     def test_send_CreateUserScript(self):
         event = "CreateUserScript"
-        with open("src/test/test_scripts/wait.py", "r") as file:
+        with open("src/test/test_scripts/test.js", "r") as file:
             file_content = file.read()
         with open("src/test/test_scripts/requirements.txt", "r") as file:
             req = file.read()
         data = {
-            "program": [{"filename": "wait.py", "content": file_content}, {"filename": "requirements.txt", "content": req}],
-            "main_file": "wait.py",
-            "language": "python"
+            "program": [{"filename": "test.js", "content": file_content}, {"filename": "requirements.txt", "content": req}],
+            "main_file": "test.js",
+            "language": "javascript",
+            "logs": []
         }
         status_code = 200
         message = "Hi"
@@ -25,7 +26,7 @@ class Test(TestCase):
     def test_send_RunUserScript(self):
         event = "RunUserScript"
         data = {
-            "user_script": "5fdb2fde17d5b3d22065664f"
+            "user_script": "5fddfcb1ed006d2009189567"
         }
         status_code = 200
         message = "Hi"
