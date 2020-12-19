@@ -4,7 +4,7 @@ content_type = application/json
 
 CreateUserScript
 {
-    "program": [{"filename": "hello.py", "content": "b'print(\"Hello, World!\")\\n'"}],
+    "program": [{"filename": "hello.py", "content": "b'print(\"Hello, World!\")\\n'"}, {"filename": "requirements.txt", "content": ""}],
     "main_file": "hello.py",
     "language": "python"
 }

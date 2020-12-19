@@ -103,7 +103,6 @@ def handle_event(event: str, body: Dict, properties: BasicProperties) -> Tuple:
 
     elif event == "RunUserScript":
         output = mongo_actions.run_userscript(jwt, body["user_script"])
-        print("HER", output)
         if isinstance(output, str):
             if output == "Invalid jwt":
                 response_code = 401

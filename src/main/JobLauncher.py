@@ -67,9 +67,13 @@ class Job:
             namespace="default"
         )
 
+        print("Now sleeping...")
         time.sleep(60)
+        print("Fetching output...")
         output = self.get_output(batch_v1)
+        print("Done fetching output. Logging to database now...")
         self.log_output(output)
+        print("Deleting job...")
         self.delete_job(batch_v1)
 
     def get_output(self, api_instance):
