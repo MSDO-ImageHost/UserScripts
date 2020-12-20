@@ -65,6 +65,7 @@ def handle_event(event: str, body: Dict, properties: BasicProperties) -> Tuple:
     jwt = properties.headers["jwt"]
 
     if event == "CreateUserScript":
+        print(body)
         inserted_id = mongo_actions.create_userscript(jwt, body["program"], body["main_file"], body["language"])
         if isinstance(inserted_id, str):
             return {}, 401, inserted_id
