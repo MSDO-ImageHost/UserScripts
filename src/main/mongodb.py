@@ -44,8 +44,11 @@ class MongoDbActions:
         files = self.find_userscript(object_id)
         if files is not None:
             owner = files["owner"]
-            if str(owner) == str(user) or role > 9:
-                return files
+            try:
+                if str(owner) == str(user) or role > 9:
+                    return files
+            except TypeError:
+                return "Invalid userID or role"
             return "Permission denied"
         return "File does not exist"
 
@@ -57,9 +60,12 @@ class MongoDbActions:
         info = verify(jwt)
         if info is None:
             return "Invalid jwt"
-        if str(info["sub"]) == str(user) or info["role"] > 9:
-            # find all user's userscripts
-            return [userscript for userscript in self.collection.find({"owner": user})]
+        try:
+            if str(info["sub"]) == str(user) or info["role"] > 9:
+                # find all user's userscripts
+                return [userscript for userscript in self.collection.find({"owner": user})]
+        except TypeError:
+            return "Invalid userID or role"
         return "Permission denied"
 
     def create_userscript(self, jwt, files, main_file, language):
