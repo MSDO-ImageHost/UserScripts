@@ -126,6 +126,10 @@ def handle_event(event: str, body: Dict, properties: BasicProperties) -> Tuple:
 
         return {"user_scripts": user_scripts}, 200, "OK"
 
+    elif event == "FindUserScript":
+        user_script = mongo_actions.find_userscript(body["scrip_id"])
+        return {"user_scripts": user_script}, 200, "OK"
+
 
 def receive(event: str, body: Dict, properties: BasicProperties) -> Tuple:
     responses = {
@@ -133,7 +137,8 @@ def receive(event: str, body: Dict, properties: BasicProperties) -> Tuple:
         "UpdateUserScript": "ConfirmUserScriptUpdate",
         "DeleteUserScript": "ConfirmUserScriptDeletion",
         "RunUserScript": "ConfirmUserScriptRunning",
-        "FindUsersUserScripts": "ReturnUsersUserScripts"
+        "FindUsersUserScripts": "ReturnUsersUserScripts",
+        "findUserscript": "ReturnUserScript"
     }
 
     response_event = responses[event]
