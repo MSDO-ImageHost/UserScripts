@@ -25,13 +25,10 @@ class RabbitMQ:
             credentials=credentials))
         self.channel = self.connection.channel()
 
-    def setup(self) -> None:
-        events = ["CreateUserScript", "UpdateUserScript", "DeleteUserScript", "RunUserScript", "FindUsersUserScripts", "FindUserScript"]
+    def setup(self, events: List[str]) -> None:
         self.channel.exchange_declare(exchange='rapid', exchange_type='direct')
         self.channel.queue_declare(queue='user_scripts')
-
         for event in events:
-            print(event)
             self.channel.queue_bind(queue='user_scripts', exchange='rapid', routing_key=event)
         print("Setup done")
 
@@ -160,8 +157,9 @@ def receive(event: str, body: Dict, properties: BasicProperties) -> Tuple:
 
 
 def main():
+    events = ["CreateUserScript", "UpdateUserScript", "DeleteUserScript", "RunUserScript", "FindUsersUserScripts", "FindUserScript"]
     rabbitmq = RabbitMQ()
-    rabbitmq.setup()
+    rabbitmq.setup(events)
     rabbitmq.receive()
 
 
