@@ -14,7 +14,6 @@ CreateUserScript
     "program": [{"filename": "test.py", "content": "print(\"Hello, World!\")\n"}, {"filename": "requirements.txt", "content": "requests===2.25.0"}],
     "main_file": "test.py",
     "language": "python",
-    "logs": []
 }
 
 

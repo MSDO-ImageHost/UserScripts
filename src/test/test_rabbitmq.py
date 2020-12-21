@@ -13,7 +13,6 @@ class Test(TestCase):
             "program": [{"filename": "test.js", "content": file_content}, {"filename": "requirements.txt", "content": req}],
             "main_file": "test.js",
             "language": "javascript",
-            "logs": []
         }
         status_code = 200
         message = "Hi"
