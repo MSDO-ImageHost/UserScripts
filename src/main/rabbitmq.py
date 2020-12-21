@@ -29,6 +29,7 @@ class RabbitMQ:
         self.channel.exchange_declare(exchange='rapid', exchange_type='direct')
         self.channel.queue_declare(queue='user_scripts')
         for event in events:
+            print(event)
             self.channel.queue_bind(queue='user_scripts', exchange='rapid', routing_key=event)
         print("Setup done")
 
