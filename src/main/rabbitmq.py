@@ -131,7 +131,7 @@ def handle_event(event: str, body: Dict, properties: BasicProperties) -> Tuple:
         return {"user_scripts": user_script}, 200, "OK"
 
     elif event == "createLog":
-        user_script = mongo_actions.find_userscript(body["user_script"])
+        user_script = mongo_actions.create_log(body["user_script"])
         return {"user_scripts": user_script}, 200, "OK"
 
 
