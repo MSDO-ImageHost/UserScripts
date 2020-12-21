@@ -10,7 +10,6 @@ try:
     USERNAME = os.environ["MONGO_USERNAME"]
     PASSWORD = os.environ["MONGO_PASSWORD"]
     HOST = os.environ["MONGO_HOST"]
-    URI = os.environ["MONGO_CONN_URI"]
 except KeyError:
     USERNAME = ""
     PASSWORD = ""
@@ -32,8 +31,7 @@ def create_userscript_database_file(owner, language, files, main_file):
 
 class MongoDbActions:
     def __init__(self, collection_userscripts):
-        #client = MongoClient(HOST, username=USERNAME, password=PASSWORD)
-        client = MongoClient(URI)
+        client = MongoClient(HOST, username=USERNAME, password=PASSWORD)
         db = client["UserScript"]
         self.collection = db[collection_userscripts]
 
