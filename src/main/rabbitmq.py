@@ -130,6 +130,10 @@ def handle_event(event: str, body: Dict, properties: BasicProperties) -> Tuple:
         user_script = mongo_actions.find_userscript(body["user_script"])
         return {"user_scripts": user_script}, 200, "OK"
 
+    elif event == "createLog":
+        user_script = mongo_actions.find_userscript(body["user_script"])
+        return {"user_scripts": user_script}, 200, "OK"
+
 
 def receive(event: str, body: Dict, properties: BasicProperties) -> Tuple:
     responses = {
@@ -138,7 +142,8 @@ def receive(event: str, body: Dict, properties: BasicProperties) -> Tuple:
         "DeleteUserScript": "ConfirmUserScriptDeletion",
         "RunUserScript": "ConfirmUserScriptRunning",
         "FindUsersUserScripts": "ReturnUsersUserScripts",
-        "findUserscript": "ReturnUserScript"
+        "findUserscript": "ReturnUserScript",
+        "createLog": "ReturnLog"
     }
 
     response_event = responses[event]
@@ -157,7 +162,7 @@ def receive(event: str, body: Dict, properties: BasicProperties) -> Tuple:
 
 
 def main():
-    events = ["CreateUserScript", "UpdateUserScript", "DeleteUserScript", "RunUserScript", "FindUsersUserScripts, FindUserScript"]
+    events = ["CreateUserScript", "UpdateUserScript", "DeleteUserScript", "RunUserScript", "FindUsersUserScripts", "FindUserScript", "createLog"]
     rabbitmq = RabbitMQ()
     rabbitmq.setup(events)
     rabbitmq.receive()
