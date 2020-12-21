@@ -157,7 +157,7 @@ def receive(event: str, body: Dict, properties: BasicProperties) -> Tuple:
 
 
 def main():
-    events = ["CreateUserScript", "UpdateUserScript", "DeleteUserScript", "RunUserScript", "FindUsersUserScripts"]
+    events = ["CreateUserScript", "UpdateUserScript", "DeleteUserScript", "RunUserScript", "FindUsersUserScripts, FindUserScript"]
     rabbitmq = RabbitMQ()
     rabbitmq.setup(events)
     rabbitmq.receive()
