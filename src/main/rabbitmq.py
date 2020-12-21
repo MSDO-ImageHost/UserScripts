@@ -138,7 +138,7 @@ def receive(event: str, body: Dict, properties: BasicProperties) -> Tuple:
         "DeleteUserScript": "ConfirmUserScriptDeletion",
         "RunUserScript": "ConfirmUserScriptRunning",
         "FindUsersUserScripts": "ReturnUsersUserScripts",
-        "FindUserscript": "ReturnUserScript"
+        "FindUserScript": "ReturnUserScript"
     }
 
     response_event = responses[event]
