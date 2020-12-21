@@ -63,7 +63,7 @@ def send(event: str, data: Dict, status_code: int, message: str, correlation_id:
 def handle_event(event: str, body: Dict, properties: BasicProperties) -> Tuple:
     mongo_actions = MongoDbActions("user_script")
     jwt = properties.headers["jwt"]
-
+    print("Here is the body: ", body)
     if event == "CreateUserScript":
         print(body)
         inserted_id = mongo_actions.create_userscript(jwt, body["program"], body["main_file"], body["language"])
