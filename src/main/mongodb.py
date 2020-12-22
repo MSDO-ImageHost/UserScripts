@@ -122,5 +122,6 @@ class MongoDbActions:
             "log": log,
             "created_at": datetime.datetime.now()
         }
+        print("log object ", log_object)
         return self.collection.update({'_id': ObjectId(program_id)}, {'$push': {'logs': log_object}})["nModified"]
 

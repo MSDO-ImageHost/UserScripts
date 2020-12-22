@@ -3,6 +3,7 @@ from kubernetes import client, config
 
 
 def create_files_command(files):
+    print(files)
     command = ""
     for file in files:
         filename = file["filename"]
@@ -68,6 +69,7 @@ class Job:
         )
 
         output = self.get_output(batch_v1)
+        print("output ", output)
         self.log_output(output)
         self.delete_job(batch_v1)
 
@@ -89,6 +91,7 @@ class Job:
         while time_waited < 600:
             try:
                 pod_log_response = core_v1.read_namespaced_pod_log(name=pod_name, namespace='default')
+                print("log here ", pod_log_response)
                 return pod_log_response
             except client.rest.ApiException:
                 time.sleep(5)
