@@ -2,13 +2,16 @@ import time
 from kubernetes import client, config
 
 
-def create_files_command(files):
+def create_files_command(files, language):
     print(files)
     command = ""
+    if language == "python" and "requirements.txt" not in [file["filename"] for file in files]:
+        command += "cat << EOF > requirements.txt\n\nEOF\n"
     for file in files:
         filename = file["filename"]
         content = file["content"]
         command += f"cat << EOF > {filename}\n{content}\nEOF\n"
+    print("Command created from create_files_command:", command)
     return command
 
 
@@ -55,7 +58,7 @@ class Job:
         return job
 
     def create_job(self, docker_image, commands):
-        print("Creating job.")
+        print("Creating job...")
         try:
             config.load_incluster_config()
         except:
@@ -68,9 +71,11 @@ class Job:
             namespace="default"
         )
 
+        print("Waiting to fetch output log from pod...")
         output = self.get_output(batch_v1)
-        print("output ", output)
+        print("Got output from pod. Logging do database...")
         self.log_output(output)
+        print("Done logging to database. Deleting job...")
         self.delete_job(batch_v1)
 
     def get_output(self, api_instance):
@@ -89,10 +94,16 @@ class Job:
 
         time_waited = 0
         while time_waited < 600:
+            minutes_waited = time_waited // 60
+            if time_waited % 60 == 0:
+                print(f"Waited to fetch output for {minutes_waited} minutes")
             try:
                 pod_log_response = core_v1.read_namespaced_pod_log(name=pod_name, namespace='default')
-                print("log here ", pod_log_response)
-                return pod_log_response
+                if pod_log_response != "":
+                    return pod_log_response
+                else:
+                    time.sleep(5)
+                    time_waited += 5
             except client.rest.ApiException:
                 time.sleep(5)
                 time_waited += 5
@@ -105,7 +116,7 @@ class Job:
 
     def python_job(self, files, mainfile):
         install = "pip3 install -q -r requirements.txt"
-        command = create_files_command(files)
+        command = create_files_command(files, "python")
         command += install + " && "
         command += "python " + mainfile
         commands = ["/bin/sh", "-c", command]
@@ -113,20 +124,20 @@ class Job:
 
     def java_job(self, files, mainfile):
         name = mainfile.rsplit('.', 1)[0]
-        command = create_files_command(files)
+        command = create_files_command(files, "java")
         command += "javac " + mainfile + " && "
         command += "java " + name
         commands = ["/bin/sh", "-c", command]
         return self.create_job("openjdk", commands)
 
     def haskell_job(self, files, mainfile):
-        command = create_files_command(files)
+        command = create_files_command(files, "haskell")
         command += "runhaskell " + mainfile
         commands = ["/bin/sh", "-c", command]
         return self.create_job("extremedevops/haskell", commands)
 
     def javascript_job(self, files, mainfile):
-        command = create_files_command(files)
+        command = create_files_command(files, "javascript")
         command += "node " + mainfile
         commands = ["/bin/sh", "-c", command]
         return self.create_job("node", commands)
